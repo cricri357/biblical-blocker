@@ -11,17 +11,30 @@
     background-color: #e0ddd5;
 }
 
-.capitulo {
+.bar {
     border: 1px solid #703529;
     height: 7px;
     background-color: #e0ddd5;
 }
 
 .cap_progress {
-    width: 50%;
+    width: 67%;
     height: 100%;
     background-color: #283d70;
 }
+
+.livro_progress {
+    width: 45%;
+    height: 100%;
+    background-color: #283d70;
+}
+
+.biblia_progress {
+    width: 5%;
+    height: 100%;
+    background-color: #283d70;
+}
+
 
 
 
