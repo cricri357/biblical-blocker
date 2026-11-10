@@ -6,29 +6,42 @@
     <title>Biblical Blocker</title>
     <link rel="stylesheet" href="popup.css">
 </head>
+
 <body>
+
     <div class="main">
-        <header>
-            <h1>TESTE</h1>
-            <input type="button"> <input type="button">
-        </header>
+        <h1>TESTE</h1>
 
-        <div>
-            <p>Capítulo</p>
-            <div class="bar"><div class="cap_progress"></div></div>
-        </div>
-         <div>
-            <p>Livro</p>
-            <div class="bar"><div class="livro_progress"></div></div>
-        </div>
-         <div>
-            <p>Bíblia</p>
-            <div class="bar"><div class="biblia_progress"></div></div>
+        <div class="tabs">
+            <button  class="tab active" data-tab="stats">Estatísticas</button>
+            <button class="tab" data-tab="settings">Configurações</button>
         </div>
 
-        <footer>
+        <div id="stats" class="tab-content active">
 
-        </footer>
+            <div class="texto" id="cap">
+                <p>Capítulo</p>
+                <div class="bar" id="cap"><div class="progress" id="cap"></div></div>
+            </div>
+
+            <div class="texto" id="livro">
+                <p>Livro</p>
+                <div class="bar" id="livro"><div class="progress" id="livro"></div></div>
+            </div>
+
+            <div class="texto" id="biblia">
+                <p>Bíblia</p>
+                <div class="bar" id="biblia"><div class="progress" id="biblia"></div></div>
+            </div>
+
+        </div>
+
+        <div id="settings" class="tab-content">
+
+        </div>
+
     </div>
+
+    <script src="popup.js"></script>
 </body>
 </html>

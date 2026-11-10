@@ -11,6 +11,33 @@
     background-color: #e0ddd5;
 }
 
+.tabs {
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid #ccc;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.tab.active {
+    border-bottom: 3px solid #333;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 .bar {
     border: 1px solid #703529;
     height: 7px;
@@ -18,19 +45,19 @@
 }
 
 .cap_progress {
-    width: 67%;
+    width: 0%;
     height: 100%;
     background-color: #283d70;
 }
 
 .livro_progress {
-    width: 45%;
+    width: 0%;
     height: 100%;
     background-color: #283d70;
 }
 
 .biblia_progress {
-    width: 5%;
+    width: 0%;
     height: 100%;
     background-color: #283d70;
 }
