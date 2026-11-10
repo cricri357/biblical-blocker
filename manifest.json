@@ -1,0 +1,41 @@
+
+{
+  "manifest_version": 3,
+  "name": "Blocker Bíblico",
+  "version": "1.0.0",
+  "description": "Bloqueie sites e incentive a leitura bíblica.",
+
+  "permissions": [
+    "declarativeNetRequest"
+  ],
+
+  "host_permissions": [
+    "*://*/*"
+  ],
+
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "block_rules",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "pages/blocked.html",
+        "pages/blocked.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
