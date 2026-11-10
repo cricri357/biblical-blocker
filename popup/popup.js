@@ -1,5 +1,6 @@
 const tabs = document.querySelectorAll(".tab");
 const contents = document.querySelectorAll(".tab-content");
+const cap_texto = document.querySelector(".cap_texto")
 
 tabs.forEach(tab => {
     tab.addEventListener("click", () => {
@@ -20,3 +21,4 @@ tabs.forEach(tab => {
         document.getElementById(tabId).classList.add("active");
     });
 });
+
