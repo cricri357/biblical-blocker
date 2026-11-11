@@ -1,3 +1,5 @@
+let verses = []
+
 fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da api
     .then(request => request.json())
     .then(data => {
@@ -40,28 +42,13 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
             fetch(`https://bible.helloao.org/api/por_blj/${bookId}/${chapterNumber}.json`)
                 .then(request => request.json())
                 .then(data => {
-                    console.log(data);
+                    verses = data
                 });
         });
 
         chapterSelect.dispatchEvent(new Event("change"));
-            
+        console.log(verses)
     });
-
-const verses = [
-    {
-        chapter: "SALMOS 23",
-        text: "O Senhor é o meu pastor; nada me faltará.",
-        reference: "Salmos 23:1",
-        number: 1
-    },
-    {
-        chapter: "JOÃO 3",
-        text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito.",
-        reference: "João 3:16",
-        number: 16 
-    }
-];
 
 const TIMER_DURATION = 5;
 
