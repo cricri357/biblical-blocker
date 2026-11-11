@@ -10,6 +10,8 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`)
             let bookOption = document.createElement('option')
             bookOption.value = `${book.id}`
             bookOption.innerText = `${book.name}`
+            bookOption.className = `${book.id}`
+            bookOption.selected = false
             bookSelect.appendChild(bookOption)
         });
 
@@ -25,6 +27,8 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`)
                 let chapterOption = document.createElement('option')
                 chapterOption.value = `${i}`
                 chapterOption.innerText = `${i}`
+                chapterOption.className = `${i}`
+                chapterOption.selected = false
                 chapterSelect.appendChild(chapterOption)
             }
         });
@@ -59,6 +63,13 @@ const nextVerseButton = document.querySelector("#next-verse-button");
 let currentVerseIndex = 0;
 let secondsRemaining = TIMER_DURATION;
 let timerInterval;
+let currentBook = "GEN";
+let currentChapter = 1;
+
+let currentBookOption = document.querySelector(`.${currentBook}]`)
+let currentChapterOption = document.querySelector(`.${currentChapter}`)
+currentBookOption.selected = true
+currentChapterOption.selected = true
 
 function updateTimerDisplay() {
     const elapsedPercentage =
