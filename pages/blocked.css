@@ -64,10 +64,54 @@ h1 {
 }
 
 .intro {
-    margin: 18px auto 36px;
+    margin: 18px auto 30px;
     color: #687067;
     font-size: 16px;
     line-height: 1.6;
+}
+
+.reading-selectors {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 14px;
+    margin: 0 0 28px;
+    text-align: left;
+}
+
+.selector-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.selector-group label {
+    color: #596456;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.selector-group select {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 38px 0 13px;
+    border: 1px solid #d8d9ce;
+    border-radius: 7px;
+    background-color: #fffefa;
+    color: #343d34;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.selector-group select:focus-visible {
+    outline: 3px solid #9aaf96;
+    outline-offset: 2px;
+}
+
+.selector-group select:disabled {
+    background-color: #eeede6;
+    color: #92968c;
+    cursor: not-allowed;
 }
 
 .verse-card {
@@ -195,6 +239,12 @@ h1 {
 
     .reading-content {
         padding: 44px 0 28px;
+    }
+
+    .reading-selectors {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 24px;
     }
 
     .verse-card {
