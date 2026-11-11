@@ -1,4 +1,5 @@
-let verses = []
+let currentBook = "GEN"
+let currentChapter = 1
 
 fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da api
     .then(request => request.json())
@@ -31,9 +32,9 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
             }
         });
 
-        bookSelect.value = "GEN"; // livro atual que será carregado com a página
+        bookSelect.value = currentBook; // livro atual que será carregado com a página
         bookSelect.dispatchEvent(new Event("change")); // chama o evento de criar os capitulos
-        chapterSelect.value = "1"; // capitulo atual
+        chapterSelect.value = currentChapter; // capitulo atual
 
         chapterSelect.addEventListener("change", () => {
             const bookId = bookSelect.value;
@@ -42,12 +43,11 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
             fetch(`https://bible.helloao.org/api/por_blj/${bookId}/${chapterNumber}.json`)
                 .then(request => request.json())
                 .then(data => {
-                    verses = data
+                    
                 });
         });
 
         chapterSelect.dispatchEvent(new Event("change"));
-        console.log(verses)
     });
 
 const TIMER_DURATION = 5;
