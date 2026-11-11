@@ -13,7 +13,7 @@ const verses = [
     }
 ];
 
-const TIMER_DURATION = 10;
+const TIMER_DURATION = 5;
 
 const chapterLabel = document.querySelector("#chapter-label");
 const verseText = document.querySelector("#verse-text");
