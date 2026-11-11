@@ -1,0 +1,75 @@
+const verses = [
+    {
+        chapter: "SALMOS 23",
+        text: "O Senhor é o meu pastor; nada me faltará.",
+        reference: "Salmos 23:1",
+        number: 1
+    },
+    {
+        chapter: "JOÃO 3",
+        text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito.",
+        reference: "João 3:16",
+        number: 16
+    }
+];
+
+const TIMER_DURATION = 10;
+
+const chapterLabel = document.querySelector("#chapter-label");
+const verseText = document.querySelector("#verse-text");
+const verseReference = document.querySelector("#verse-reference");
+const timerProgress = document.querySelector("#timer-progress");
+const timerTrack = document.querySelector("#timer-track");
+const timerCount = document.querySelector("#timer-count");
+const timerMessage = document.querySelector("#timer-message");
+const nextVerseButton = document.querySelector("#next-verse-button");
+
+let currentVerseIndex = 0;
+let secondsRemaining = TIMER_DURATION;
+let timerInterval;
+
+function updateTimerDisplay() {
+    const elapsedPercentage =
+        ((TIMER_DURATION - secondsRemaining) / TIMER_DURATION) * 100;
+
+    timerProgress.style.width = `${elapsedPercentage}%`;
+    timerCount.textContent = `${secondsRemaining} segundo(s)`;
+    timerTrack.setAttribute("aria-valuenow", TIMER_DURATION - secondsRemaining);
+}
+
+function startTimer() {
+    clearInterval(timerInterval);
+
+    secondsRemaining = TIMER_DURATION;
+    nextVerseButton.hidden = true;
+    timerMessage.textContent = "Aguarde para avançar o versículo";
+    updateTimerDisplay();
+
+    timerInterval = setInterval(() => {
+        secondsRemaining--;
+        updateTimerDisplay();
+
+        if (secondsRemaining <= 0) {
+            clearInterval(timerInterval);
+            timerMessage.textContent = "Tempo de leitura concluído";
+            timerCount.textContent = "Você já pode avançar.";
+            nextVerseButton.hidden = false;
+        }
+    }, 1000);
+}
+
+function showVerse(index) {
+    const verse = verses[index];
+
+    chapterLabel.textContent = verse.chapter;
+    verseText.innerHTML = `<sup>${verse.number}</sup> ${verse.text}`;
+    verseReference.textContent = verse.reference;
+}
+
+nextVerseButton.addEventListener("click", () => {
+    currentVerseIndex = (currentVerseIndex + 1) % verses.length;
+    showVerse(currentVerseIndex);
+    startTimer();
+});
+
+startTimer();
