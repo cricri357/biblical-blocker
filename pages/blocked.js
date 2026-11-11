@@ -15,6 +15,7 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`)
 
         bookSelect.addEventListener("change", () => {
             chapterSelect.innerHTML = ``
+            
             bookId = bookSelect.value;
             const selectedBook = data.books.find(
                 book => book.id === bookId
