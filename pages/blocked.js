@@ -1,3 +1,16 @@
+fetch(`https://bible.helloao.org/api/por_blj/books.json`)
+    .then(request => request.json())
+    .then(data => {
+        console.log(data.books) 
+        const bookSelect = document.querySelector("#book-select")
+        bookSelect.innerHTML = ``
+        data.books.forEach(book => { 
+            let bookOption = document.createElement('option')
+            bookOption.innerText = `${book.name}`
+            bookSelect.appendChild(bookOption)
+        });
+    });
+
 const verses = [
     {
         chapter: "SALMOS 23",
@@ -9,7 +22,7 @@ const verses = [
         chapter: "JOÃO 3",
         text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito.",
         reference: "João 3:16",
-        number: 16
+        number: 16 
     }
 ];
 
