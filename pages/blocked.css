@@ -1,27 +1,142 @@
-
-body {
-    background-color: #f4f1e8;
-    font-family: Arial, sans-serif;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    min-height: 100vh;
-    margin: 0;
+* {
+    box-sizing: border-box;
 }
 
-main {
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #f4f1e8;
+    color: #303b32;
+    font-family: Arial, sans-serif;
+}
+
+.reading-page {
+    width: min(100% - 40px, 900px);
+    min-height: 100vh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 0;
+    border-bottom: 1px solid #deded2;
+}
+
+.brand {
+    color: #385b45;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.status {
+    padding: 8px 12px;
+    border-radius: 20px;
+    background-color: #e7e5d9;
+    color: #596456;
+    font-size: 13px;
+}
+
+.reading-content {
+    width: 100%;
+    max-width: 650px;
+    margin: auto;
+    padding: 64px 0;
     text-align: center;
-    max-width: 500px;
-    padding: 30px;
+}
+
+.eyebrow {
+    margin-bottom: 14px;
+    color: #71816e;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
 }
 
 h1 {
-    color: #385b45;
+    margin: 0;
+    color: #304d39;
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.2;
 }
 
-p {
-    color: #444;
-    font-size: 18px;
+.intro {
+    margin: 18px auto 36px;
+    color: #687067;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.verse-card {
+    padding: 38px 42px;
+    border: 1px solid #e2dfd2;
+    border-radius: 12px;
+    background-color: #fffefa;
+    box-shadow: 0 8px 24px rgb(48 59 50 / 5%);
+}
+
+.chapter-label {
+    margin: 0 0 24px;
+    color: #829078;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.verse-text {
+    margin: 0;
+    color: #343d34;
+    font-family: Georgia, serif;
+    font-size: clamp(21px, 3vw, 28px);
+    line-height: 1.6;
+}
+
+.verse-text sup {
+    margin-right: 5px;
+    color: #71816e;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+}
+
+.verse-reference {
+    margin: 24px 0 0;
+    color: #71816e;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.reading-hint {
+    margin-top: 24px;
+    color: #7b8077;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.page-footer {
+    padding: 22px 0;
+    border-top: 1px solid #deded2;
+    color: #899084;
+    font-size: 12px;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .reading-page {
+        width: min(100% - 28px, 900px);
+    }
+
+    .page-header {
+        padding: 20px 0;
+    }
+
+    .reading-content {
+        padding: 44px 0;
+    }
+
+    .verse-card {
+        padding: 30px 22px;
+    }
 }
