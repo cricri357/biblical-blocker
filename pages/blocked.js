@@ -1,13 +1,31 @@
 fetch(`https://bible.helloao.org/api/por_blj/books.json`)
     .then(request => request.json())
     .then(data => {
-        console.log(data.books) 
         const bookSelect = document.querySelector("#book-select")
+        const chapterSelect = document.querySelector("#chapter-select")
+
         bookSelect.innerHTML = ``
+
         data.books.forEach(book => { 
             let bookOption = document.createElement('option')
+            bookOption.value = `${book.id}`
             bookOption.innerText = `${book.name}`
             bookSelect.appendChild(bookOption)
+        });
+
+        bookSelect.addEventListener("change", () => {
+            chapterSelect.innerHTML = ``
+            bookId = bookSelect.value;
+            const selectedBook = data.books.find(
+                book => book.id === bookId
+            );
+            console.log(selectedBook.numberOfChapters)
+            for (i = 1; i <= selectedBook.numberOfChapters; i++) {
+                let chapterOption = document.createElement('option')
+                chapterOption.value = `${i}`
+                chapterOption.innerText = `${i}`
+                chapterSelect.appendChild(chapterOption)
+            }
         });
     });
 
