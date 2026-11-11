@@ -1,37 +1,37 @@
-fetch(`https://bible.helloao.org/api/por_blj/books.json`)
+fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da api
     .then(request => request.json())
     .then(data => {
-        const bookSelect = document.querySelector("#book-select")
-        const chapterSelect = document.querySelector("#chapter-select")
+        const bookSelect = document.querySelector("#book-select") // pega o elemento select de livro
+        const chapterSelect = document.querySelector("#chapter-select") // pega o elemento select do capitulo
 
-        bookSelect.innerHTML = ``
+        bookSelect.innerHTML = `` // zera o html do select
 
-        data.books.forEach(book => { 
-            let bookOption = document.createElement('option')
-            bookOption.value = `${book.id}`
-            bookOption.innerText = `${book.name}`
-            bookOption.className = `${book.id}`
-            bookOption.selected = false
-            bookSelect.appendChild(bookOption)
+        data.books.forEach(book => { // para cada livro 
+            let bookOption = document.createElement('option') // cria o elemento option
+            bookOption.value = `${book.id}` // valor do elemento option
+            bookOption.innerText = `${book.name}` // texto do elemento option com o nome do livro
+            bookSelect.appendChild(bookOption) // instancia o elemento
         });
 
-        bookSelect.addEventListener("change", () => {
-            chapterSelect.innerHTML = ``
+        bookSelect.addEventListener("change", () => { // ao mudar de seleção de livro
+            chapterSelect.innerHTML = `` // zera o html do capitulo
             
-            bookId = bookSelect.value;
-            const selectedBook = data.books.find(
+            bookId = bookSelect.value; // pega o id do livro selecionado
+            const selectedBook = data.books.find( // encontra o livro selecionado
                 book => book.id === bookId
             );
-            console.log(selectedBook.numberOfChapters)
-            for (i = 1; i <= selectedBook.numberOfChapters; i++) {
+
+            for (i = 1; i <= selectedBook.numberOfChapters; i++) { // loop para gerar as options dos capitulos do livro
                 let chapterOption = document.createElement('option')
                 chapterOption.value = `${i}`
                 chapterOption.innerText = `${i}`
-                chapterOption.className = `${i}`
-                chapterOption.selected = false
                 chapterSelect.appendChild(chapterOption)
             }
         });
+
+        bookSelect.value = "GEN"; // livro atual que será carregado com a página
+        bookSelect.dispatchEvent(new Event("change")); // chama o evento de criar os capitulos
+        chapterSelect.value = "1"; // capitulo atual
     });
 
 const verses = [
@@ -63,13 +63,6 @@ const nextVerseButton = document.querySelector("#next-verse-button");
 let currentVerseIndex = 0;
 let secondsRemaining = TIMER_DURATION;
 let timerInterval;
-let currentBook = "GEN";
-let currentChapter = 1;
-
-let currentBookOption = document.querySelector(`.${currentBook}]`)
-let currentChapterOption = document.querySelector(`.${currentChapter}`)
-currentBookOption.selected = true
-currentChapterOption.selected = true
 
 function updateTimerDisplay() {
     const elapsedPercentage =
