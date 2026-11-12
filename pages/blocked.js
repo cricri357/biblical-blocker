@@ -23,6 +23,7 @@ const nextVerseButton = document.querySelector("#next-verse-button");
 // Recupera o estado salvo e inicia o leitor.
 async function initializeReader() {
     try {
+        // Espera a promessa dos dados salvos e da lista de livros
         const [savedData, booksResponse] = await Promise.all([
             getStorageData(),
             fetch("https://bible.helloao.org/api/por_blj/books.json")
@@ -32,6 +33,7 @@ async function initializeReader() {
             throw new Error("Não foi possível carregar a lista de livros.");
         }
 
+        // Lista de livros
         const booksData = await booksResponse.json();
         books = booksData.books;
 
@@ -42,12 +44,18 @@ async function initializeReader() {
         console.info("[Blocker] Lista de livros carregada:", books.length);
 
         // Restaura a última posição salva. Se ela não for válida, usa GEN 1:1.
+        // Leitura salva
         const savedReading = savedData.currentReading ?? {};
+        // Livro salvo
         const savedBook = books.find(book => book.id === savedReading.book);
+        // Livro atual é o salvo, senão será Gênesis
         currentBook = savedBook ? savedBook.id : "GEN";
 
+        // Livro selecionado será o atual
         const selectedBook = books.find(book => book.id === currentBook);
+        // Capitulo solicitado é o salvo
         const requestedChapter = Number(savedReading.chapter);
+        // Capitulo atual é o solicitado, senão será o 1
         currentChapter =
             Number.isInteger(requestedChapter) &&
             requestedChapter >= 1 &&
@@ -55,13 +63,17 @@ async function initializeReader() {
                 ? requestedChapter
                 : 1;
 
+        // Verso solicitado é o salvo
         const requestedVerse = Number(savedReading.verse);
+        // Verso atual é o solicitado, senão será o 1
         currentVerse =
             Number.isInteger(requestedVerse) && requestedVerse >= 1
                 ? requestedVerse
                 : 1;
 
+        // Saldo salvo
         const savedBalance = Number(savedData.versesRead);
+        // Versos lidos é saldo salvo, senão é 0
         versesRead =
             Number.isFinite(savedBalance) && savedBalance >= 0
                 ? savedBalance
@@ -71,6 +83,7 @@ async function initializeReader() {
         populateBookSelect();
         populateChapterSelect();
 
+        // Valores do select
         bookSelect.value = currentBook;
         chapterSelect.value = String(currentChapter);
 
@@ -115,6 +128,7 @@ function populateChapterSelect() {
     }
 }
 
+// Carrega o capitulo da API a partir do livro, capitulo e verso atuais, senão começa no versiculo 1
 async function loadChapter(verseToShow = 1) {
     try {
         timerMessage.textContent = "Carregando capítulo...";
@@ -242,6 +256,7 @@ function showVerse() {
 
     chapterLabel.textContent = `${bookName} ${chapterNumber}`;
 
+    // Filtro de objetos indesejados
     // A API pode retornar partes do conteúdo como objetos (notas).
     const verseContent = verse.content
         .filter(part => typeof part === "string")
