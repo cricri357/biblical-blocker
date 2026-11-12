@@ -6,7 +6,8 @@
   "description": "Bloqueie sites e incentive a leitura bíblica.",
 
   "permissions": [
-    "declarativeNetRequest"
+    "declarativeNetRequest",
+    "storage"
   ],
 
   "host_permissions": [

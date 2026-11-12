@@ -9,6 +9,15 @@ const bookSelect = document.querySelector("#book-select")
 const chapterSelect = document.querySelector("#chapter-select")
 const versesReadBalance = document.querySelector("#verses-read-balance")
 
+async function callStorage() {
+
+    let data = await getStorageData()
+    console.log(data)
+
+}
+
+callStorage()
+
 function updateVersesReadBalance() {
     versesReadBalance.textContent = String(versesRead)
 }
