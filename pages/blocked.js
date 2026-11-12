@@ -1,6 +1,7 @@
 let currentBook = "GEN"
 let currentChapter = 1
 let currentVerse = 1
+let chapterData 
 
 fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da api
     .then(request => request.json())
@@ -20,7 +21,7 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
         bookSelect.addEventListener("change", () => { // ao mudar de seleção de livro
             chapterSelect.innerHTML = `` // zera o html do capitulo
             
-            bookId = bookSelect.value; // pega o id do livro selecionado
+            let bookId = bookSelect.value; // pega o id do livro selecionado
             const selectedBook = data.books.find( // encontra o livro selecionado
                 book => book.id === bookId
             );
@@ -31,11 +32,13 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
                 chapterOption.innerText = `${i}`
                 chapterSelect.appendChild(chapterOption)
             }
+            chapterSelect.dispatchEvent(new Event("change"));
         });
 
         bookSelect.value = currentBook; // livro atual que será carregado com a página
         bookSelect.dispatchEvent(new Event("change")); // chama o evento de criar os capitulos
         chapterSelect.value = currentChapter; // capitulo atual
+        
 
         chapterSelect.addEventListener("change", () => {
             const bookId = bookSelect.value;
@@ -44,7 +47,10 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
             fetch(`https://bible.helloao.org/api/por_blj/${bookId}/${chapterNumber}.json`)
                 .then(request => request.json())
                 .then(data => {
-                    showVerse(data)
+                    chapterData = data;
+                    currentVerse = 1;
+                    showVerse(chapterData);
+                    startTimer();
                 });
         });
 
@@ -108,8 +114,21 @@ function showVerse(data) {
 }
 
 nextVerseButton.addEventListener("click", () => {
-    currentVerseIndex = (currentVerseIndex + 1) % verses.length;
-    showVerse(currentVerseIndex);
+    if (!chapterData) return;
+
+    const nextVerse = chapterData.chapter.content.find(item =>
+        item.type === "verse" && item.number > currentVerse
+    );
+
+    if (!nextVerse) {
+        timerMessage.textContent = "Você chegou ao último versículo deste capítulo.";
+        nextVerseButton.hidden = true;
+        return;
+    }
+
+    currentVerse = nextVerse.number;
+
+    showVerse(chapterData);
     startTimer();
 });
 
