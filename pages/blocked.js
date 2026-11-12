@@ -26,7 +26,7 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
                 book => book.id === bookId
             );
 
-            for (i = 1; i <= selectedBook.numberOfChapters; i++) { // loop para gerar as options dos capitulos do livro
+            for (let i = 1; i <= selectedBook.numberOfChapters; i++) { // loop para gerar as options dos capitulos do livro
                 let chapterOption = document.createElement('option')
                 chapterOption.value = `${i}`
                 chapterOption.innerText = `${i}`
@@ -57,7 +57,7 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
         chapterSelect.dispatchEvent(new Event("change"));
     });
 
-const TIMER_DURATION = 5;
+const TIMER_DURATION = 3;
 
 const chapterLabel = document.querySelector("#chapter-label");
 const verseText = document.querySelector("#verse-text");
@@ -108,7 +108,7 @@ function showVerse(data) {
     item.type === "verse" && item.number === currentVerse
     );
 
-    chapterLabel.textContent = chapterNumber;
+    chapterLabel.textContent = `${book} ${chapterNumber}`;
     verseText.innerHTML = `<sup>${verse.number}</sup> ${verse.content}`;
     verseReference.textContent = `${book} ${chapterNumber}:${verse.number}`;
 }
