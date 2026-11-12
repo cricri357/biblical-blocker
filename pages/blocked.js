@@ -1,224 +1,362 @@
-let currentBook
-let currentChapter
-let currentVerse
-let chapterData
-let books = []
-let versesRead = 0
+let currentBook;
+let currentChapter;
+let currentVerse;
+let chapterData;
+let books = [];
+let versesRead = 0;
+let timerInterval;
 
-const bookSelect = document.querySelector("#book-select")
-const chapterSelect = document.querySelector("#chapter-select")
-const versesReadBalance = document.querySelector("#verses-read-balance")
+const TIMER_DURATION = 3;
 
-async function callStorage() {
+const bookSelect = document.querySelector("#book-select");
+const chapterSelect = document.querySelector("#chapter-select");
+const versesReadBalance = document.querySelector("#verses-read-balance");
+const chapterLabel = document.querySelector("#chapter-label");
+const verseText = document.querySelector("#verse-text");
+const verseReference = document.querySelector("#verse-reference");
+const timerProgress = document.querySelector("#timer-progress");
+const timerTrack = document.querySelector("#timer-track");
+const timerCount = document.querySelector("#timer-count");
+const timerMessage = document.querySelector("#timer-message");
+const nextVerseButton = document.querySelector("#next-verse-button");
 
-    let data = await getStorageData()
-    console.log(data)
+// Recupera o estado salvo e inicia o leitor.
+async function initializeReader() {
+    try {
+        const [savedData, booksResponse] = await Promise.all([
+            getStorageData(),
+            fetch("https://bible.helloao.org/api/por_blj/books.json")
+        ]);
 
+        if (!booksResponse.ok) {
+            throw new Error("Não foi possível carregar a lista de livros.");
+        }
+
+        const booksData = await booksResponse.json();
+        books = booksData.books;
+
+        if (!Array.isArray(books) || books.length === 0) {
+            throw new Error("A API não retornou uma lista válida de livros.");
+        }
+
+        console.info("[Blocker] Lista de livros carregada:", books.length);
+
+        // Restaura a última posição salva. Se ela não for válida, usa GEN 1:1.
+        const savedReading = savedData.currentReading ?? {};
+        const savedBook = books.find(book => book.id === savedReading.book);
+        currentBook = savedBook ? savedBook.id : "GEN";
+
+        const selectedBook = books.find(book => book.id === currentBook);
+        const requestedChapter = Number(savedReading.chapter);
+        currentChapter =
+            Number.isInteger(requestedChapter) &&
+            requestedChapter >= 1 &&
+            requestedChapter <= selectedBook.numberOfChapters
+                ? requestedChapter
+                : 1;
+
+        const requestedVerse = Number(savedReading.verse);
+        currentVerse =
+            Number.isInteger(requestedVerse) && requestedVerse >= 1
+                ? requestedVerse
+                : 1;
+
+        const savedBalance = Number(savedData.versesRead);
+        versesRead =
+            Number.isFinite(savedBalance) && savedBalance >= 0
+                ? savedBalance
+                : 0;
+
+        updateVersesReadBalance();
+        populateBookSelect();
+        populateChapterSelect();
+
+        bookSelect.value = currentBook;
+        chapterSelect.value = String(currentChapter);
+
+        await loadChapter(currentVerse);
+        console.info("[Blocker] Estado restaurado:", {
+            book: currentBook,
+            chapter: currentChapter,
+            verse: currentVerse,
+            versesRead
+        });
+    } catch (error) {
+        console.error("[Blocker] Erro ao inicializar o leitor:", error);
+        timerMessage.textContent = "Não foi possível iniciar o leitor.";
+    }
 }
 
-callStorage()
+function populateBookSelect() {
+    bookSelect.innerHTML = "";
+
+    books.forEach(book => {
+        const option = document.createElement("option");
+        option.value = book.id;
+        option.textContent = book.name;
+        bookSelect.appendChild(option);
+    });
+}
+
+function populateChapterSelect() {
+    const selectedBook = books.find(book => book.id === currentBook);
+
+    if (!selectedBook) {
+        throw new Error(`Livro não encontrado: ${currentBook}`);
+    }
+
+    chapterSelect.innerHTML = "";
+
+    for (let chapter = 1; chapter <= selectedBook.numberOfChapters; chapter++) {
+        const option = document.createElement("option");
+        option.value = String(chapter);
+        option.textContent = String(chapter);
+        chapterSelect.appendChild(option);
+    }
+}
+
+async function loadChapter(verseToShow = 1) {
+    try {
+        timerMessage.textContent = "Carregando capítulo...";
+        nextVerseButton.hidden = true;
+        clearInterval(timerInterval);
+
+        const response = await fetch(
+            `https://bible.helloao.org/api/por_blj/${currentBook}/${currentChapter}.json`
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Não foi possível carregar ${currentBook} ${currentChapter}.`
+            );
+        }
+
+        const data = await response.json();
+        chapterData = data;
+
+        const availableVerses = data.chapter.content.filter(
+            item => item.type === "verse"
+        );
+
+        if (availableVerses.length === 0) {
+            throw new Error("O capítulo não possui versículos disponíveis.");
+        }
+
+        const requestedVerseExists = availableVerses.some(
+            verse => verse.number === verseToShow
+        );
+
+        // Evita restaurar uma referência de versículo que não existe.
+        currentVerse = requestedVerseExists
+            ? verseToShow
+            : availableVerses[0].number;
+
+        console.info(
+            "[Blocker] Capítulo carregado:",
+            `${currentBook} ${currentChapter}`,
+            "| Versículos:",
+            availableVerses.length
+        );
+
+        showVerse();
+        await persistCurrentReading();
+        startTimer();
+    } catch (error) {
+        console.error("[Blocker] Erro ao carregar capítulo:", error);
+        timerMessage.textContent = "Erro ao carregar o capítulo.";
+    }
+}
+
+async function persistCurrentReading() {
+    try {
+        await updateCurrentReading(currentBook, currentChapter, currentVerse);
+    } catch (error) {
+        console.error("[Blocker] Erro ao salvar a posição de leitura:", error);
+    }
+}
 
 function updateVersesReadBalance() {
-    versesReadBalance.textContent = String(versesRead)
+    versesReadBalance.textContent = String(versesRead);
 }
-
-fetch("https://bible.helloao.org/api/por_blj/books.json")
-    .then(request => {
-        if (!request.ok) {
-            throw new Error("Não foi possível carregar a lista de livros.")
-        }
-        return request.json()
-    })
-    .then(data => {
-        books = data.books
-        console.info("[Blocker] Lista de livros carregada:", books.length)
-
-        currentBook = "GEN"
-        currentChapter = 1
-        currentVerse = 1
-
-        bookSelect.innerHTML = ""
-
-        books.forEach(book => {
-            const bookOption = document.createElement("option")
-            bookOption.value = book.id
-            bookOption.textContent = book.name
-            bookSelect.appendChild(bookOption)
-        })
-
-        // Quando o livro muda, recria as opções de capítulo.
-        bookSelect.addEventListener("change", () => {
-            currentBook = bookSelect.value
-            const selectedBook = books.find(book => book.id === currentBook)
-            console.info("[Blocker] Livro selecionado:", selectedBook?.name, `(${currentBook})`)
-            chapterSelect.innerHTML = ""
-
-            if (!selectedBook) {
-                console.error("[Blocker] Livro não encontrado:", currentBook)
-                return
-            }
-
-            for (let i = 1; i <= selectedBook.numberOfChapters; i++) {
-                const chapterOption = document.createElement("option")
-                chapterOption.value = String(i)
-                chapterOption.textContent = String(i)
-                chapterSelect.appendChild(chapterOption)
-            }
-
-            // Ao trocar de livro, começa pelo capítulo 1.
-            currentChapter = 1
-            currentVerse = 1
-            chapterSelect.value = "1"
-            chapterSelect.dispatchEvent(new Event("change"))
-        })
-
-        // Quando o capítulo muda, busca seu conteúdo na API.
-        chapterSelect.addEventListener("change", () => {
-            currentChapter = Number(chapterSelect.value)
-            currentVerse = 1
-            console.info("[Blocker] Carregando capítulo:", `${currentBook} ${currentChapter}`)
-
-            fetch(`https://bible.helloao.org/api/por_blj/${currentBook}/${currentChapter}.json`)
-                .then(request => {
-                    if (!request.ok) {
-                        throw new Error("Não foi possível carregar este capítulo.")
-                    }
-                    return request.json()
-                })
-                .then(data => {
-                    chapterData = data
-                    console.info("[Blocker] Capítulo carregado. Versículos disponíveis:", data.chapter.content.filter(item => item.type === "verse").length)
-                    showVerse(chapterData)
-                    startTimer()
-                })
-                .catch(error => {
-                    console.error(error)
-                    timerMessage.textContent = "Erro ao carregar o capítulo."
-                })
-        })
-
-        // Define o livro inicial e dispara o carregamento inicial.
-        bookSelect.value = currentBook
-        bookSelect.dispatchEvent(new Event("change"))
-    })
-    .catch(error => {
-        console.error(error)
-        timerMessage.textContent = "Erro ao carregar a lista de livros."
-    })
-
-const TIMER_DURATION = 3
-
-const chapterLabel = document.querySelector("#chapter-label")
-const verseText = document.querySelector("#verse-text")
-const verseReference = document.querySelector("#verse-reference")
-const timerProgress = document.querySelector("#timer-progress")
-const timerTrack = document.querySelector("#timer-track")
-const timerCount = document.querySelector("#timer-count")
-const timerMessage = document.querySelector("#timer-message")
-const nextVerseButton = document.querySelector("#next-verse-button")
-
-let secondsRemaining = TIMER_DURATION
-let timerInterval
 
 function updateTimerDisplay() {
     const elapsedPercentage =
-        ((TIMER_DURATION - secondsRemaining) / TIMER_DURATION) * 100
+        ((TIMER_DURATION - secondsRemaining) / TIMER_DURATION) * 100;
 
-    timerProgress.style.width = `${elapsedPercentage}%`
-    timerCount.textContent = `${secondsRemaining} segundo(s)`
-    timerTrack.setAttribute("aria-valuenow", TIMER_DURATION - secondsRemaining)
+    timerProgress.style.width = `${elapsedPercentage}%`;
+    timerCount.textContent = `${secondsRemaining} segundo(s)`;
+    timerTrack.setAttribute(
+        "aria-valuenow",
+        String(TIMER_DURATION - secondsRemaining)
+    );
 }
+
+let secondsRemaining = TIMER_DURATION;
 
 function startTimer() {
-    clearInterval(timerInterval)
+    clearInterval(timerInterval);
 
-    secondsRemaining = TIMER_DURATION
-    nextVerseButton.hidden = true
-    timerMessage.textContent = "Aguarde para avançar o versículo"
-    updateTimerDisplay()
+    secondsRemaining = TIMER_DURATION;
+    nextVerseButton.hidden = true;
+    nextVerseButton.disabled = false;
+    timerMessage.textContent = "Aguarde para avançar o versículo";
+    updateTimerDisplay();
 
     timerInterval = setInterval(() => {
-        secondsRemaining--
-        updateTimerDisplay()
+        secondsRemaining--;
+        updateTimerDisplay();
 
         if (secondsRemaining <= 0) {
-            clearInterval(timerInterval)
+            clearInterval(timerInterval);
 
-            console.info("[Blocker] Temporizador concluído para:", `${currentBook} ${currentChapter}:${currentVerse}`)
-            timerMessage.textContent = "Tempo de leitura concluído"
-            timerCount.textContent = "Você já pode avançar."
-            nextVerseButton.hidden = false
+            console.info(
+                "[Blocker] Temporizador concluído:",
+                `${currentBook} ${currentChapter}:${currentVerse}`
+            );
+
+            timerMessage.textContent = "Tempo de leitura concluído";
+            timerCount.textContent = "Você já pode avançar.";
+            nextVerseButton.hidden = false;
         }
-    }, 1000)
+    }, 1000);
 }
 
-function showVerse(data) {
-    const book = data.book.name
-    const chapterNumber = data.chapter.number
+function showVerse() {
+    const bookName = chapterData.book.name;
+    const chapterNumber = chapterData.chapter.number;
 
-    const verse = data.chapter.content.find(item =>
-        item.type === "verse" && item.number === currentVerse
-    )
+    const verse = chapterData.chapter.content.find(
+        item => item.type === "verse" && item.number === currentVerse
+    );
 
     if (!verse) {
-        console.error("Versículo não encontrado:", currentVerse)
-        return
+        console.error("[Blocker] Versículo não encontrado:", currentVerse);
+        timerMessage.textContent = "Não foi possível encontrar este versículo.";
+        return;
     }
 
-    console.info("[Blocker] Exibindo versículo:", `${book} ${chapterNumber}:${verse.number}`)
-    chapterLabel.textContent = `${book} ${chapterNumber}`
-    verseText.innerHTML = `<sup>${verse.number}</sup> ${verse.content}`
-    verseReference.textContent = `${book} ${chapterNumber}:${verse.number}`
+    console.info(
+        "[Blocker] Exibindo versículo:",
+        `${bookName} ${chapterNumber}:${verse.number}`
+    );
+
+    chapterLabel.textContent = `${bookName} ${chapterNumber}`;
+
+    // A API pode retornar partes do conteúdo como objetos (notas).
+    const verseContent = verse.content
+        .filter(part => typeof part === "string")
+        .join("");
+
+    verseText.textContent = "";
+    const numberElement = document.createElement("sup");
+    numberElement.textContent = String(verse.number);
+    verseText.append(numberElement, document.createTextNode(` ${verseContent}`));
+
+    verseReference.textContent =
+        `${bookName} ${chapterNumber}:${verse.number}`;
 }
 
-nextVerseButton.addEventListener("click", () => {
-    if (!chapterData) return
+// Mudança manual de livro: começa pelo capítulo e versículo 1.
+bookSelect.addEventListener("change", async () => {
+    currentBook = bookSelect.value;
+    currentChapter = 1;
+    currentVerse = 1;
 
-    // O clique confirma a leitura do versículo atual.
-    // Leituras repetidas também são contabilizadas.
-    versesRead++
-    updateVersesReadBalance()
-    console.info("[Blocker] Versículo contabilizado:", `${currentBook} ${currentChapter}:${currentVerse}`, "| Saldo:", versesRead)
+    try {
+        populateChapterSelect();
+        chapterSelect.value = "1";
+        console.info("[Blocker] Livro selecionado:", currentBook);
+        await loadChapter(1);
+    } catch (error) {
+        console.error("[Blocker] Erro ao trocar de livro:", error);
+        timerMessage.textContent = "Não foi possível trocar de livro.";
+    }
+});
 
-    const nextVerse = chapterData.chapter.content.find(item =>
-        item.type === "verse" && item.number > currentVerse
-    )
+// Mudança manual de capítulo: começa pelo primeiro versículo.
+chapterSelect.addEventListener("change", async () => {
+    const selectedChapter = Number(chapterSelect.value);
+
+    if (!Number.isInteger(selectedChapter) || selectedChapter < 1) {
+        console.error("[Blocker] Número de capítulo inválido:", chapterSelect.value);
+        return;
+    }
+
+    currentChapter = selectedChapter;
+    currentVerse = 1;
+
+    console.info("[Blocker] Capítulo selecionado:", currentBook, currentChapter);
+    await loadChapter(1);
+});
+
+// O clique só contabiliza depois que o temporizador terminou.
+// O botão é desativado durante o salvamento para evitar cliques duplicados.
+nextVerseButton.addEventListener("click", async () => {
+    if (!chapterData || nextVerseButton.hidden || nextVerseButton.disabled) {
+        return;
+    }
+
+    nextVerseButton.disabled = true;
+
+    try {
+        versesRead = await addVersesRead(1);
+        updateVersesReadBalance();
+
+        console.info(
+            "[Blocker] Versículo contabilizado:",
+            `${currentBook} ${currentChapter}:${currentVerse}`,
+            "| Saldo:",
+            versesRead
+        );
+    } catch (error) {
+        console.error("[Blocker] Erro ao salvar o saldo de versículos:", error);
+        timerMessage.textContent = "Não foi possível salvar o versículo. Tente novamente.";
+        nextVerseButton.disabled = false;
+        return;
+    }
+
+    const nextVerse = chapterData.chapter.content.find(
+        item => item.type === "verse" && item.number > currentVerse
+    );
 
     if (nextVerse) {
-        currentVerse = nextVerse.number
-        console.info("[Blocker] Avançando para o próximo versículo:", `${currentBook} ${currentChapter}:${currentVerse}`)
-        showVerse(chapterData)
-        startTimer()
-        return
+        currentVerse = nextVerse.number;
+        showVerse();
+        await persistCurrentReading();
+        startTimer();
+        return;
     }
 
-    // Não há mais versículos: verifica se existe outro capítulo.
-    const selectedBook = books.find(book => book.id === currentBook)
+    const selectedBook = books.find(book => book.id === currentBook);
 
     if (currentChapter < selectedBook.numberOfChapters) {
-        currentChapter++
-        console.info("[Blocker] Fim do capítulo. Avançando para:", `${currentBook} ${currentChapter}`)
-        chapterSelect.value = String(currentChapter)
-        chapterSelect.dispatchEvent(new Event("change"))
-        return
+        currentChapter++;
+        currentVerse = 1;
+        chapterSelect.value = String(currentChapter);
+        await loadChapter(1);
+        return;
     }
 
-    // O capítulo acabou: tenta avançar para o próximo livro.
-    const bookIndex = books.findIndex(book => book.id === currentBook)
-    const nextBook = books[bookIndex + 1]
+    const bookIndex = books.findIndex(book => book.id === currentBook);
+    const nextBook = books[bookIndex + 1];
 
     if (nextBook) {
-        currentBook = nextBook.id
-        console.info("[Blocker] Fim do livro. Avançando para o próximo livro:", nextBook.name, `(${nextBook.id})`)
-        bookSelect.value = currentBook
-        bookSelect.dispatchEvent(new Event("change"))
-        return
+        currentBook = nextBook.id;
+        currentChapter = 1;
+        currentVerse = 1;
+        bookSelect.value = currentBook;
+        populateChapterSelect();
+        chapterSelect.value = "1";
+        await loadChapter(1);
+        return;
     }
 
-    // Não há próximo livro: a leitura chegou ao fim da Bíblia.
-    console.info("[Blocker] Fim da Bíblia alcançado.")
-    clearInterval(timerInterval)
-    timerMessage.textContent = "Você chegou ao final da Bíblia!"
-    timerCount.textContent = ""
-    nextVerseButton.hidden = true
-})
+    console.info("[Blocker] Fim da Bíblia alcançado.");
+    clearInterval(timerInterval);
+    timerMessage.textContent = "Você chegou ao final da Bíblia!";
+    timerCount.textContent = "";
+    nextVerseButton.hidden = true;
+});
+
+// Inicia o leitor somente depois de registrar os eventos.
+initializeReader();
