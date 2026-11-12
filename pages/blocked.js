@@ -1,13 +1,17 @@
-let currentBook = "GEN"
-let currentChapter = 1
-let currentVerse = 1
+let currentBook
+let currentChapter
+let currentVerse
 let chapterData 
+
+const bookSelect = document.querySelector("#book-select") // pega o elemento select de livro
+const chapterSelect = document.querySelector("#chapter-select") // pega o elemento select do capitulo
 
 fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da api
     .then(request => request.json())
     .then(data => {
-        const bookSelect = document.querySelector("#book-select") // pega o elemento select de livro
-        const chapterSelect = document.querySelector("#chapter-select") // pega o elemento select do capitulo
+        currentBook = "GEN"
+        currentChapter = 1
+        currentVerse = 1
 
         bookSelect.innerHTML = `` // zera o html do select
 
@@ -26,6 +30,8 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
                 book => book.id === bookId
             );
 
+            currentBook = bookSelect.value
+
             for (let i = 1; i <= selectedBook.numberOfChapters; i++) { // loop para gerar as options dos capitulos do livro
                 let chapterOption = document.createElement('option')
                 chapterOption.value = `${i}`
@@ -38,11 +44,12 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
         bookSelect.value = currentBook; // livro atual que será carregado com a página
         bookSelect.dispatchEvent(new Event("change")); // chama o evento de criar os capitulos
         chapterSelect.value = currentChapter; // capitulo atual
-        
 
         chapterSelect.addEventListener("change", () => {
             const bookId = bookSelect.value;
             const chapterNumber = chapterSelect.value;
+
+            currentChapter = chapterSelect.value
 
             fetch(`https://bible.helloao.org/api/por_blj/${bookId}/${chapterNumber}.json`)
                 .then(request => request.json())
@@ -121,8 +128,9 @@ nextVerseButton.addEventListener("click", () => {
     );
 
     if (!nextVerse) {
-        timerMessage.textContent = "Você chegou ao último versículo deste capítulo.";
-        nextVerseButton.hidden = true;
+        currentChapter = Number(currentChapter) + 1
+        console.log(currentChapter)
+        bookSelect.dispatchEvent(new Event("change"));
         return;
     }
 
