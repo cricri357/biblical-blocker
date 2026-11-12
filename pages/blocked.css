@@ -185,13 +185,6 @@ h1 {
     font-weight: 700;
 }
 
-.reading-hint {
-    margin-top: 24px;
-    color: #7b8077;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
 .reading-timer {
     width: 100%;
     max-width: 500px;
