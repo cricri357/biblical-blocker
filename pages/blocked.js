@@ -16,6 +16,7 @@ fetch("https://bible.helloao.org/api/por_blj/books.json")
     })
     .then(data => {
         books = data.books
+        console.info("[Blocker] Lista de livros carregada:", books.length)
 
         currentBook = "GEN"
         currentChapter = 1
@@ -33,11 +34,14 @@ fetch("https://bible.helloao.org/api/por_blj/books.json")
         // Quando o livro muda, recria as opções de capítulo.
         bookSelect.addEventListener("change", () => {
             currentBook = bookSelect.value
+            const selectedBook = books.find(book => book.id === currentBook)
+            console.info("[Blocker] Livro selecionado:", selectedBook?.name, `(${currentBook})`)
             chapterSelect.innerHTML = ""
 
-            const selectedBook = books.find(book => book.id === currentBook)
-
-            if (!selectedBook) return
+            if (!selectedBook) {
+                console.error("[Blocker] Livro não encontrado:", currentBook)
+                return
+            }
 
             for (let i = 1; i <= selectedBook.numberOfChapters; i++) {
                 const chapterOption = document.createElement("option")
@@ -57,6 +61,7 @@ fetch("https://bible.helloao.org/api/por_blj/books.json")
         chapterSelect.addEventListener("change", () => {
             currentChapter = Number(chapterSelect.value)
             currentVerse = 1
+            console.info("[Blocker] Carregando capítulo:", `${currentBook} ${currentChapter}`)
 
             fetch(`https://bible.helloao.org/api/por_blj/${currentBook}/${currentChapter}.json`)
                 .then(request => {
@@ -67,6 +72,7 @@ fetch("https://bible.helloao.org/api/por_blj/books.json")
                 })
                 .then(data => {
                     chapterData = data
+                    console.info("[Blocker] Capítulo carregado. Versículos disponíveis:", data.chapter.content.filter(item => item.type === "verse").length)
                     showVerse(chapterData)
                     startTimer()
                 })
@@ -122,6 +128,7 @@ function startTimer() {
 
         if (secondsRemaining <= 0) {
             clearInterval(timerInterval)
+            console.info("[Blocker] Temporizador concluído para:", `${currentBook} ${currentChapter}:${currentVerse}`)
             timerMessage.textContent = "Tempo de leitura concluído"
             timerCount.textContent = "Você já pode avançar."
             nextVerseButton.hidden = false
@@ -142,6 +149,7 @@ function showVerse(data) {
         return
     }
 
+    console.info("[Blocker] Exibindo versículo:", `${book} ${chapterNumber}:${verse.number}`)
     chapterLabel.textContent = `${book} ${chapterNumber}`
     verseText.innerHTML = `<sup>${verse.number}</sup> ${verse.content}`
     verseReference.textContent = `${book} ${chapterNumber}:${verse.number}`
@@ -156,6 +164,7 @@ nextVerseButton.addEventListener("click", () => {
 
     if (nextVerse) {
         currentVerse = nextVerse.number
+        console.info("[Blocker] Avançando para o próximo versículo:", `${currentBook} ${currentChapter}:${currentVerse}`)
         showVerse(chapterData)
         startTimer()
         return
@@ -166,6 +175,7 @@ nextVerseButton.addEventListener("click", () => {
 
     if (currentChapter < selectedBook.numberOfChapters) {
         currentChapter++
+        console.info("[Blocker] Fim do capítulo. Avançando para:", `${currentBook} ${currentChapter}`)
         chapterSelect.value = String(currentChapter)
         chapterSelect.dispatchEvent(new Event("change"))
         return
@@ -177,12 +187,14 @@ nextVerseButton.addEventListener("click", () => {
 
     if (nextBook) {
         currentBook = nextBook.id
+        console.info("[Blocker] Fim do livro. Avançando para o próximo livro:", nextBook.name, `(${nextBook.id})`)
         bookSelect.value = currentBook
         bookSelect.dispatchEvent(new Event("change"))
         return
     }
 
     // Não há próximo livro: a leitura chegou ao fim da Bíblia.
+    console.info("[Blocker] Fim da Bíblia alcançado.")
     clearInterval(timerInterval)
     timerMessage.textContent = "Você chegou ao final da Bíblia!"
     timerCount.textContent = ""
