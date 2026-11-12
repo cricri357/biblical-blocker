@@ -70,6 +70,39 @@ h1 {
     line-height: 1.6;
 }
 
+.reading-balance {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: fit-content;
+    min-width: 190px;
+    margin: 0 auto 30px;
+    padding: 16px 28px;
+    border: 1px solid #d9dfd2;
+    border-radius: 10px;
+    background-color: #e9ede4;
+}
+
+.balance-label {
+    color: #64745f;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.balance-value {
+    color: #385b45;
+    font-size: 32px;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+.balance-caption {
+    color: #7b8077;
+    font-size: 12px;
+}
+
 .reading-selectors {
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
