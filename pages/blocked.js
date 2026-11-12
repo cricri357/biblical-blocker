@@ -1,5 +1,6 @@
 let currentBook = "GEN"
 let currentChapter = 1
+let currentVerse = 1
 
 fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da api
     .then(request => request.json())
@@ -43,7 +44,7 @@ fetch(`https://bible.helloao.org/api/por_blj/books.json`) // pega os dados da ap
             fetch(`https://bible.helloao.org/api/por_blj/${bookId}/${chapterNumber}.json`)
                 .then(request => request.json())
                 .then(data => {
-                    
+                    showVerse(data)
                 });
         });
 
@@ -61,7 +62,6 @@ const timerCount = document.querySelector("#timer-count");
 const timerMessage = document.querySelector("#timer-message");
 const nextVerseButton = document.querySelector("#next-verse-button");
 
-let currentVerseIndex = 0;
 let secondsRemaining = TIMER_DURATION;
 let timerInterval;
 
@@ -95,12 +95,16 @@ function startTimer() {
     }, 1000);
 }
 
-function showVerse(index) {
-    const verse = verses[index];
+function showVerse(data) {
+    let book = data.book.name
+    let chapterNumber = data.chapter.number
+    let verse = data.chapter.content.find(item =>
+    item.type === "verse" && item.number === currentVerse
+    );
 
-    chapterLabel.textContent = verse.chapter;
-    verseText.innerHTML = `<sup>${verse.number}</sup> ${verse.text}`;
-    verseReference.textContent = verse.reference;
+    chapterLabel.textContent = chapterNumber;
+    verseText.innerHTML = `<sup>${verse.number}</sup> ${verse.content}`;
+    verseReference.textContent = `${book} ${chapterNumber}:${verse.number}`;
 }
 
 nextVerseButton.addEventListener("click", () => {
