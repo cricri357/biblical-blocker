@@ -3,9 +3,16 @@ let currentChapter
 let currentVerse
 let chapterData
 let books = []
+let versesRead = 0
+let currentVerseCounted = false
 
 const bookSelect = document.querySelector("#book-select")
 const chapterSelect = document.querySelector("#chapter-select")
+const versesReadBalance = document.querySelector("#verses-read-balance")
+
+function updateVersesReadBalance() {
+    versesReadBalance.textContent = String(versesRead)
+}
 
 fetch("https://bible.helloao.org/api/por_blj/books.json")
     .then(request => {
@@ -118,6 +125,7 @@ function startTimer() {
     clearInterval(timerInterval)
 
     secondsRemaining = TIMER_DURATION
+    currentVerseCounted = false
     nextVerseButton.hidden = true
     timerMessage.textContent = "Aguarde para avançar o versículo"
     updateTimerDisplay()
@@ -128,6 +136,15 @@ function startTimer() {
 
         if (secondsRemaining <= 0) {
             clearInterval(timerInterval)
+
+            // Cada versículo concluído entra no saldo apenas uma vez.
+            if (!currentVerseCounted) {
+                versesRead++
+                currentVerseCounted = true
+                updateVersesReadBalance()
+                console.info("[Blocker] Saldo de versículos lidos:", versesRead)
+            }
+
             console.info("[Blocker] Temporizador concluído para:", `${currentBook} ${currentChapter}:${currentVerse}`)
             timerMessage.textContent = "Tempo de leitura concluído"
             timerCount.textContent = "Você já pode avançar."
