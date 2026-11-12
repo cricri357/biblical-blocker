@@ -4,7 +4,6 @@ let currentVerse
 let chapterData
 let books = []
 let versesRead = 0
-let currentVerseCounted = false
 
 const bookSelect = document.querySelector("#book-select")
 const chapterSelect = document.querySelector("#chapter-select")
@@ -125,7 +124,6 @@ function startTimer() {
     clearInterval(timerInterval)
 
     secondsRemaining = TIMER_DURATION
-    currentVerseCounted = false
     nextVerseButton.hidden = true
     timerMessage.textContent = "Aguarde para avançar o versículo"
     updateTimerDisplay()
@@ -136,14 +134,6 @@ function startTimer() {
 
         if (secondsRemaining <= 0) {
             clearInterval(timerInterval)
-
-            // Cada versículo concluído entra no saldo apenas uma vez.
-            if (!currentVerseCounted) {
-                versesRead++
-                currentVerseCounted = true
-                updateVersesReadBalance()
-                console.info("[Blocker] Saldo de versículos lidos:", versesRead)
-            }
 
             console.info("[Blocker] Temporizador concluído para:", `${currentBook} ${currentChapter}:${currentVerse}`)
             timerMessage.textContent = "Tempo de leitura concluído"
@@ -174,6 +164,12 @@ function showVerse(data) {
 
 nextVerseButton.addEventListener("click", () => {
     if (!chapterData) return
+
+    // O clique confirma a leitura do versículo atual.
+    // Leituras repetidas também são contabilizadas.
+    versesRead++
+    updateVersesReadBalance()
+    console.info("[Blocker] Versículo contabilizado:", `${currentBook} ${currentChapter}:${currentVerse}`, "| Saldo:", versesRead)
 
     const nextVerse = chapterData.chapter.content.find(item =>
         item.type === "verse" && item.number > currentVerse
