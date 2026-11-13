@@ -308,14 +308,6 @@ h1 {
     outline-offset: 3px;
 }
 
-.page-footer {
-    padding: 22px 0;
-    border-top: 1px solid #deded2;
-    color: #899084;
-    font-size: 12px;
-    text-align: center;
-}
-
 @media (max-width: 600px) {
     .reading-page {
         width: min(100% - 32px, 860px);

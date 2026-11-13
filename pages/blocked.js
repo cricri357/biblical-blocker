@@ -19,6 +19,7 @@ const timerTrack = document.querySelector("#timer-track");
 const timerCount = document.querySelector("#timer-count");
 const timerMessage = document.querySelector("#timer-message");
 const nextVerseButton = document.querySelector("#next-verse-button");
+const unlockSiteButton = document.querySelector("#unlock-site-button");
 
 // Recupera o estado salvo e inicia o leitor.
 async function initializeReader() {
@@ -371,6 +372,12 @@ nextVerseButton.addEventListener("click", async () => {
     timerMessage.textContent = "Você chegou ao final da Bíblia!";
     timerCount.textContent = "";
     nextVerseButton.hidden = true;
+});
+
+unlockSiteButton.addEventListener("click", async () => {
+    chrome.runtime.sendMessage({
+        action: "unlockSite"
+    });
 });
 
 // Inicia o leitor somente depois de registrar os eventos.
