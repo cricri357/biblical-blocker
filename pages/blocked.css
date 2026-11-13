@@ -260,6 +260,10 @@ h1 {
     background-color: #e9ede4;
 }
 
+.unlock-section[disabled] {
+    display: none;
+}
+
 .unlock-copy {
     display: flex;
     flex-direction: column;

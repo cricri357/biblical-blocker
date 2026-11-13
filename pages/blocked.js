@@ -20,6 +20,7 @@ const timerCount = document.querySelector("#timer-count");
 const timerMessage = document.querySelector("#timer-message");
 const nextVerseButton = document.querySelector("#next-verse-button");
 const unlockSiteButton = document.querySelector("#unlock-site-button");
+const unlockSiteSection = document.querySelector("#unlock-site-section");
 
 // Recupera o estado salvo e inicia o leitor.
 async function initializeReader() {
@@ -324,6 +325,7 @@ nextVerseButton.addEventListener("click", async () => {
             "| Saldo:",
             versesRead
         );
+
     } catch (error) {
         console.error("[Blocker] Erro ao salvar o saldo de versículos:", error);
         timerMessage.textContent = "Não foi possível salvar o versículo. Tente novamente.";
