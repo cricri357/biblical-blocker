@@ -5,6 +5,34 @@ console.log("Blocker Bíblico iniciado!");
 // Domínios que a extensão permite desbloquear.
 const allowedSites = ["instagram.com", "facebook.com"];
 
+let browserInFocus = false;
+
+chrome.windows.getLastFocused((window) => {
+    browserInFocus = window.focused;
+    console.log(browserInFocus);
+});
+
+chrome.windows.onFocusChanged.addListener((windowId) => {
+    console.log("Janela em foco:", windowId);
+    browserInFocus = windowId !== chrome.windows.WINDOW_ID_NONE
+    console.log("Navegador em foco ", browserInFocus)
+});
+
+chrome.tabs.onActivated.addListener((activeInfo) => {
+    console.log(`Guia em foco: ${activeInfo.tabId}`);
+    console.log(`Janela em foco: ${activeInfo.windowId}`);
+    chrome.tabs.query(
+    { active: true, lastFocusedWindow: true },
+        (tabs) => {
+        console.log("Aba ativa:", tabs[0]);
+        console.log("Id da aba ativa:", tabs[0]?.id);
+        console.log("Endereço:", tabs[0]?.url);
+        }
+    );
+});
+
+
+
 async function receivedMessage(message, sendResponse) {
     if (message.action !== "unlockSite") {
         return;
