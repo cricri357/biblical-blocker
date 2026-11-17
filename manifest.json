@@ -15,7 +15,7 @@
   ],
 
   "background": {
-    "service_worker": "/background/service_worker.js"
+    "service_worker": "background/service_worker.js"
   },
 
   "declarative_net_request": {
