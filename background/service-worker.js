@@ -7,8 +7,9 @@ async function recievedMessage(message) {
         
         const data = await getStorageData();
 
-        if (data.versesRead <= 0) {
-            console.log("Não permite desbloquear")
+        if (data.versesRead > 0) {
+            console.log("permite desbloquear")
+            chrome.declarativeNetRequest.updateDynamicRules()
         }
         
     }
