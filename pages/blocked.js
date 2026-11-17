@@ -193,6 +193,7 @@ async function persistCurrentReading() {
 
 function updateVersesReadBalance() {
     versesReadBalance.textContent = String(versesRead);
+    unlockSiteSection.hidden = versesRead <= 0;
 }
 
 function updateTimerDisplay() {
