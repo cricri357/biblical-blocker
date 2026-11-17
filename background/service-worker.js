@@ -2,6 +2,18 @@ importScripts("../js/storage.js");
 
 console.log("Blocker Bíblico iniciado!");
 
+const unlockRule = {
+    id: 1001,
+    priority: 2,
+    action: {
+        type: "allow"
+    },
+    condition: {
+        urlFilter: "||instagram.com^",
+        resourceTypes: ["main_frame"]
+    }
+};
+
 // Remove uma regra dinâmica antiga ao iniciar o service worker.
 async function initializeBackground() {
     try {
@@ -19,21 +31,7 @@ async function receivedMessage(message) {
         return;
     }
 
-    let site = message.site
-
-    const unlockRule = {
-    id: 1001,
-    priority: 2,
-    action: {
-        type: "allow"
-    },
-    condition: {
-        urlFilter: `||${site}^`,
-        resourceTypes: ["main_frame"]
-    }
-    };
-
-    console.log(`Mensagem: ${site}`)
+    console.log(`Mensagem: ${message.site}`)
 
     try {
         const data = await getStorageData();
