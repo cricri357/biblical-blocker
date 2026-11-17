@@ -1,4 +1,4 @@
-importScripts("../js/storage.js")
+importScripts("../js/storage.js");
 
 console.log("Blocker Bíblico iniciado!");
 
@@ -14,26 +14,40 @@ const unlockRule = {
     }
 };
 
-await chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: [1001]
-});
-console.log("bloqueou")
+// Remove uma regra dinâmica antiga ao iniciar o service worker.
+async function initializeBackground() {
+    try {
+        await chrome.declarativeNetRequest.updateDynamicRules({
+            removeRuleIds: [unlockRule.id]
+        });
+        console.log("[Blocker] Regras dinâmicas inicializadas.");
+    } catch (error) {
+        console.error("[Blocker] Erro ao inicializar regras:", error);
+    }
+}
 
-async function recievedMessage(message) {
-    if (message.action === "unlockSite") {
-        
+async function receivedMessage(message) {
+    if (message.action !== "unlockSite") {
+        return;
+    }
+
+    try {
         const data = await getStorageData();
 
         if (data.versesRead > 0) {
-            console.log("permite desbloquear")
             await chrome.declarativeNetRequest.updateDynamicRules({
+                removeRuleIds: [unlockRule.id],
                 addRules: [unlockRule]
             });
+            console.log("[Blocker] Site desbloqueado.");
         }
-        
+    } catch (error) {
+        console.error("[Blocker] Erro ao desbloquear site:", error);
     }
 }
 
 chrome.runtime.onMessage.addListener((message) => {
-    recievedMessage(message)
+    receivedMessage(message);
 });
+
+initializeBackground();
