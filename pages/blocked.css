@@ -260,7 +260,7 @@ h1 {
     background-color: #e9ede4;
 }
 
-.unlock-section[disabled] {
+.unlock-section[hidden] {
     display: none;
 }
 
