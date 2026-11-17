@@ -6,7 +6,7 @@
     "action": {
       "type": "redirect",
       "redirect": {
-        "extensionPath": "/pages/blocked.html"
+        "extensionPath": "/pages/blocked.html?site=instagram.com"
       }
     },
     "condition": {
@@ -20,7 +20,7 @@
     "action": {
       "type": "redirect",
       "redirect": {
-        "extensionPath": "/pages/blocked.html"
+        "extensionPath": "/pages/blocked.html?site=facebook.com"
       }
     },
     "condition": {

@@ -378,8 +378,13 @@ nextVerseButton.addEventListener("click", async () => {
 });
 
 unlockSiteButton.addEventListener("click", async () => {
+    const params = new URLSearchParams(window.location.search);
+    const currentSite = params.get("site");
+    console.log(currentSite)
+
     chrome.runtime.sendMessage({
-        action: "unlockSite"
+        action: "unlockSite",
+        site: currentSite
     });
 });
 

@@ -31,6 +31,8 @@ async function receivedMessage(message) {
         return;
     }
 
+    console.log(`Mensagem: ${message.site}`)
+
     try {
         const data = await getStorageData();
 
