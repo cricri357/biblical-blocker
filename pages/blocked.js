@@ -380,12 +380,41 @@ nextVerseButton.addEventListener("click", async () => {
 unlockSiteButton.addEventListener("click", async () => {
     const params = new URLSearchParams(window.location.search);
     const currentSite = params.get("site");
-    console.log(currentSite)
 
-    chrome.runtime.sendMessage({
-        action: "unlockSite",
-        site: currentSite
-    });
+    // Confere se a página recebeu o domínio esperado.
+    const allowedSites = ["instagram.com", "facebook.com"];
+
+    if (!allowedSites.includes(currentSite)) {
+        console.error("[Blocker] Site não identificado ou não autorizado:", currentSite);
+        timerMessage.textContent = "Não foi possível identificar o site para desbloquear.";
+        return;
+    }
+
+    // Evita vários pedidos enquanto o desbloqueio está sendo processado.
+    unlockSiteButton.disabled = true;
+    unlockSiteButton.textContent = "Desbloqueando...";
+
+    try {
+        // Aguarda o service worker criar a regra dinâmica.
+        const result = await chrome.runtime.sendMessage({
+            action: "unlockSite",
+            site: currentSite
+        });
+
+        if (!result?.success) {
+            throw new Error(result?.error || "O desbloqueio não foi concluído.");
+        }
+
+        console.info("[Blocker] Redirecionando para:", currentSite);
+
+        // Só navega depois que o service worker confirmar a criação da regra.
+        window.location.href = `https://www.${currentSite}/`;
+    } catch (error) {
+        console.error("[Blocker] Erro ao desbloquear site:", error);
+        timerMessage.textContent = error.message;
+        unlockSiteButton.disabled = false;
+        unlockSiteButton.textContent = "Desbloquear site";
+    }
 });
 
 // Inicia o leitor somente depois de registrar os eventos.
